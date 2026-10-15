@@ -1,14 +1,14 @@
-# Contributing to Genesis
+# Contributing to Aadesh Genesis
 
 Genesis is a repository-native harness. Contributions should make outcomes easier to verify, sessions easier to resume, or context cheaper to use without discarding requirements. Model-specific behavior belongs in a demonstrated host adapter, not the core state contract.
 
 ## Start locally
 
-You need Git and Node.js 18+; Node 22 is the development default (`.nvmrc`). Python 3 enables Python AST indexing. Bash, rsync and zip are needed for the installer/distribution checks on Unix-like systems.
+You need Git and Node.js 22+ (see `.nvmrc`). Python 3 enables Python AST indexing. Bash, rsync and zip are needed for the installer/distribution checks on Unix-like systems.
 
 ```sh
-git clone https://github.com/ayush488-glitch/genesis-kit.git
-cd genesis-kit
+git clone https://github.com/Shree1194/aadesh-genesis.git
+cd aadesh-genesis
 npm run check
 npm test
 npm run demo -- --open

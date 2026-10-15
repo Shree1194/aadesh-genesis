@@ -4,16 +4,18 @@
 
 ### An agent-independent kit for verifiable, resumable software work
 
-Aadesh Genesis is the original project identity for this repository. It keeps goals,
+Aadesh Genesis is a customized fork of the open-source
+[Genesis Kit](https://github.com/ayush488-glitch/genesis-kit) (MIT). It keeps goals,
 approvals, task dependencies, execution receipts, verification evidence, recovery
 checkpoints, and audit history in a durable `.genesis/` workspace.
+The core design and almost all of the implementation are upstream work; see
+[Origin and attribution](#origin-and-attribution) for exactly what was changed here.
 
-[![Tests](https://github.com/ayush488-glitch/genesis-kit/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/ayush488-glitch/genesis-kit/actions/workflows/test.yml)
+[![Tests](https://github.com/Shree1194/aadesh-genesis/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Shree1194/aadesh-genesis/actions/workflows/test.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A522-355C4B)](https://nodejs.org/)
-[![Version](https://img.shields.io/badge/version-2.3.0-4A6274)](package.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-665474)](LICENSE)
 
-[Quick start](#quick-start) · [Architecture](#architecture) · [Completion contract](#completion-contract) · [Experiments](#evaluated-learning) · [Documentation](#documentation)
+[Origin and attribution](#origin-and-attribution) · [Quick start](#quick-start) · [Architecture](#architecture) · [Completion contract](#completion-contract) · [Experiments](#evaluated-learning) · [Documentation](#documentation)
 
 </div>
 
@@ -24,6 +26,29 @@ Long-running coding work needs more than a conversation history: it needs a dura
 Genesis runs locally on **Node.js 22+ with no npm dependencies**. Coding hosts supply the model and execution permissions. The repository supplies its acceptance checks. Genesis coordinates their state and rejects completion when the required evidence is missing, altered, stale, or inconsistent with the current task.
 
 > **Research status.** The implementation includes executable regression tests and a baseline/candidate evaluation path. It does not claim a benchmark improvement, general autonomous reliability, or security isolation from a working directory.
+
+## Origin and attribution
+
+This repository is a fork of **[ayush488-glitch/genesis-kit](https://github.com/ayush488-glitch/genesis-kit)**
+(MIT, copyright "Genesis contributors"). The architecture, state model, indexer,
+control panel, query/MCP surface, evidence and recovery engine, recipes, skills and most
+of the documentation below were written by the upstream authors and contributors.
+This fork does not claim authorship of them.
+
+**Changes made in this fork** (measured by diffing against upstream; roughly 120 changed
+lines of code in ten files, plus documentation):
+
+| Area | Change | Where |
+| :--- | :--- | :--- |
+| CLI | Added `genesis tasks [--json]` (read-only task listing), `genesis approve` (alias for `plan approve`), `genesis resume` (alias for `recover`) and `--version` | `tools/genesis.mjs` |
+| Windows | Stop timed-out commands with `taskkill /t /f` so the whole process tree ends; detect `python3`, `python` or `py` on `PATH` for Python indexing | `tools/genesis.mjs`, `tools/graphizer.mjs` |
+| CI | Test on Ubuntu and Windows (Node 22) with `npm ci`; POSIX-only installer check runs on Linux only | `.github/workflows/test.yml` |
+| Tests | Regression tests for the new commands, Windows process-tree recovery, Python detection fallback, and POSIX-only tests skipped where no POSIX shell exists | `tests/*.test.mjs` |
+| Identity | Package name `aadesh-genesis`, CLI banner, installer messages (Node 22+), repository metadata and install URLs point at this repository | `package.json`, `install.sh`, docs |
+| Docs | Attribution section, this fork's workflow summary | `README.md`, `docs/aadesh-genesis.md` |
+
+Upstream links are kept where they credit the original work. Upstream's later changes are not
+merged automatically; compare against upstream before relying on a newer upstream feature.
 
 ## Architecture
 
@@ -88,9 +113,7 @@ should not be drawn like a fact. Hovering a file isolates its call traffic; clic
 Editing a source file reindexes incrementally and updates the open page with no reload and no
 command. Extraction is cached per file on size and mtime, so unchanged files are never reopened,
 while resolution always runs over the whole file set: adding one file can resolve an import
-elsewhere or turn a proven call into an ambiguous one. On a 351k-line monorepo a cold index takes
-about 3.3 seconds and a single-file edit about 0.9 seconds, and the incremental result is
-byte-identical to `--full`. Pass `--no-watch` to disable source watching, or `graphizer --full` to
+elsewhere or turn a proven call into an ambiguous one. Upstream reports, for a 351k-line monorepo, a cold index of about 3.3 seconds and a single-file edit of about 0.9 seconds with an incremental result byte-identical to `--full`; these figures were not re-measured for this fork. Pass `--no-watch` to disable source watching, or `graphizer --full` to
 force a rebuild.
 
 Live source watching needs recursive `fs.watch`, which is available on macOS and Windows on any
@@ -219,7 +242,7 @@ use the Node CLI directly.
 Open your project in a coding agent with shell access. Replace the goal below, then copy the **entire prompt**. It covers installation, existing-project adoption, and new-project setup.
 
 ```text
-Install and use Genesis for this repository.
+Install and use Aadesh Genesis for this repository.
 My project goal is: "REPLACE THIS WITH WHAT I WANT TO BUILD."
 
 1. Check for Git, Node.js 22+, and the `genesis` CLI. If Genesis is already
@@ -227,11 +250,11 @@ My project goal is: "REPLACE THIS WITH WHAT I WANT TO BUILD."
    Do not overwrite an existing installation or unrelated local changes.
 
 2. If Genesis is missing, install the official kit:
-   - Clone https://github.com/ayush488-glitch/genesis-kit.git into
-     ~/.local/share/genesis-kit if that directory is absent.
+   - Clone https://github.com/Shree1194/aadesh-genesis.git into
+     ~/.local/share/aadesh-genesis if that directory is absent.
    - If it already contains the official repository, inspect its status and
      update with a fast-forward-only pull when clean. Preserve local changes.
-   - Run bash ~/.local/share/genesis-kit/install.sh.
+   - Run bash ~/.local/share/aadesh-genesis/install.sh.
    - Verify with ~/.local/bin/genesis help. Use that absolute CLI path if
      ~/.local/bin is not on PATH; do not edit shell startup files.
    - If prerequisites are missing or the existing directory belongs to
@@ -284,8 +307,8 @@ The installer supports skill discovery in Codex and Claude Code. Other shell-cap
 For a fresh installation on a Unix-like shell:
 
 ```bash
-git clone https://github.com/ayush488-glitch/genesis-kit.git ~/.local/share/genesis-kit
-bash ~/.local/share/genesis-kit/install.sh
+git clone https://github.com/Shree1194/aadesh-genesis.git ~/.local/share/aadesh-genesis
+bash ~/.local/share/aadesh-genesis/install.sh
 ~/.local/bin/genesis help
 ```
 
@@ -382,10 +405,10 @@ A passing experiment means every candidate case passed without a baseline regres
 npm test                         # No dependency installation required
 node --check tools/genesis.mjs
 bash -n install.sh
-./make-zip.sh /tmp/genesis-kit.zip # Offline distribution
+./make-zip.sh /tmp/aadesh-genesis.zip # Offline distribution
 ```
 
-CI runs syntax checks and the suite on Node 18 and 22. An optional [development container](.devcontainer/devcontainer.json) provides the contributor runtime. The tests cover completion bypasses, missing/tampered evidence, source and environment drift, dependency readiness, runtime mismatch, worker reuse, pause/revocation, timeout, live-process recovery, context supersession and evaluated rule promotion. These are synthetic regression cases, not a representative coding benchmark; private session transcripts are not distributed.
+CI runs syntax checks and the suite on Node 22 on Ubuntu and Windows. Local run on 2026-10-16 (Linux, Node 22.22): `npm run check` passed and `npm test` passed 75 of 75; this is a point-in-time result, so see the Tests badge and the [Actions page](https://github.com/Shree1194/aadesh-genesis/actions) for current CI. An optional [development container](.devcontainer/devcontainer.json) provides the contributor runtime. The tests cover completion bypasses, missing/tampered evidence, source and environment drift, dependency readiness, runtime mismatch, worker reuse, pause/revocation, timeout, live-process recovery, context supersession and evaluated rule promotion. These are synthetic regression cases, not a representative coding benchmark; private session transcripts are not distributed.
 
 For capability experiments, compare the same host and model with a fixed task set, matched budgets and an independently protected evaluator. Report paired completion outcomes, regressions, interventions, recovery behavior, elapsed time and actual cost. Preserve failed runs and use held-out tasks after candidate selection.
 
@@ -413,4 +436,6 @@ A manually triggered workflow tests and packages a **draft release** with a ZIP 
 
 ## License
 
-Genesis is [MIT-licensed](LICENSE). The bundled Ponytail skill retains its upstream MIT license and attribution in [its source](skills/ponytail/SKILL.md).
+[MIT](LICENSE). The original copyright notice ("Genesis contributors") is retained and this
+fork's modifications are added under the same license. The bundled Ponytail skill retains its
+upstream MIT license and attribution in [its source](skills/ponytail/SKILL.md).
